@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.env
+*.log
+uploads/
+ml/models/
+logs/
+
+# Node
+node_modules/
+.next/
+.env.local
+*.tsbuildinfo
+
+# General
+.DS_Store
+*.zip
