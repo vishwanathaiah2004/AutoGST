@@ -41,19 +41,20 @@ export default function DashboardPage() {
   const monthly = [...(stats.monthly_summary || [])].reverse();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
+
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="text-xl md:text-2xl font-bold text-slate-900">
           Welcome back, {user?.full_name?.split(" ")[0]} 👋
         </h1>
-        <p className="text-slate-500 text-sm mt-1">
+        <p className="text-slate-500 text-xs md:text-sm mt-1">
           {user?.business_name || "Your Business"} · GSTIN: {user?.gstin || "Not set"}
         </p>
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+      {/* Primary Stat Cards — 1 col mobile, 2 col sm, 4 col xl */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
         <StatCard
           title="Total Income"
           value={fmt(stats.total_income)}
@@ -81,8 +82,8 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Secondary Cards */}
-      <div className="grid grid-cols-3 gap-4">
+      {/* Secondary Stat Cards — 1 col mobile, 3 col md */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
         <StatCard
           title="Total Transactions"
           value={stats.transaction_count.toString()}
@@ -103,15 +104,16 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-3 gap-4">
-        {/* Area Chart */}
-        <div className="col-span-2 card p-5">
+      {/* Charts Row — stacked on mobile, side by side on lg */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
+
+        {/* Area Chart — full width mobile, 2/3 desktop */}
+        <div className="lg:col-span-2 card p-4 md:p-5">
           <h2 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
             <BarChart2 className="w-4 h-4 text-indigo-500" /> Monthly Income vs Expense
           </h2>
           {monthly.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220}>
+            <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={monthly}>
                 <defs>
                   <linearGradient id="income" x1="0" y1="0" x2="0" y2="1">
@@ -124,8 +126,8 @@ export default function DashboardPage() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                <YAxis tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11 }} />
+                <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                <YAxis tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} width={45} />
                 <Tooltip formatter={(v: any) => fmt(v)} />
                 <Legend />
                 <Area type="monotone" dataKey="income" stroke="#22c55e" fill="url(#income)" name="Income" />
@@ -137,8 +139,8 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Pie Chart */}
-        <div className="card p-5">
+        {/* Pie Chart — full width mobile, 1/3 desktop */}
+        <div className="card p-4 md:p-5">
           <h2 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
             <PieIcon className="w-4 h-4 text-indigo-500" /> Top Categories
           </h2>
@@ -146,7 +148,13 @@ export default function DashboardPage() {
             <>
               <ResponsiveContainer width="100%" height={160}>
                 <PieChart>
-                  <Pie data={stats.top_categories} dataKey="total" nameKey="category" cx="50%" cy="50%" innerRadius={40} outerRadius={70}>
+                  <Pie
+                    data={stats.top_categories}
+                    dataKey="total"
+                    nameKey="category"
+                    cx="50%" cy="50%"
+                    innerRadius={40} outerRadius={70}
+                  >
                     {stats.top_categories.map((_: any, i: number) => (
                       <Cell key={i} fill={COLORS[i % COLORS.length]} />
                     ))}
@@ -158,10 +166,10 @@ export default function DashboardPage() {
                 {stats.top_categories.slice(0, 4).map((c: any, i: number) => (
                   <li key={i} className="flex items-center justify-between text-xs">
                     <span className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
-                      <span className="text-slate-600 truncate max-w-[100px]">{c.category}</span>
+                      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
+                      <span className="text-slate-600 truncate max-w-[120px]">{c.category}</span>
                     </span>
-                    <span className="font-medium text-slate-800">{fmt(c.total)}</span>
+                    <span className="font-medium text-slate-800 ml-2">{fmt(c.total)}</span>
                   </li>
                 ))}
               </ul>
@@ -172,23 +180,24 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* GST Summary Bar */}
+      {/* GST Bar Chart — full width */}
       {monthly.length > 0 && (
-        <div className="card p-5">
+        <div className="card p-4 md:p-5">
           <h2 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
             <Activity className="w-4 h-4 text-indigo-500" /> Monthly GST Collection
           </h2>
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={monthly}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-              <YAxis tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11 }} />
+              <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+              <YAxis tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 10 }} width={45} />
               <Tooltip formatter={(v: any) => fmt(v)} />
               <Bar dataKey="gst" fill="#6366f1" radius={[4, 4, 0, 0]} name="GST Collected" />
             </BarChart>
           </ResponsiveContainer>
         </div>
       )}
+
     </div>
   );
 }
