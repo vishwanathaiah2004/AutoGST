@@ -1,12 +1,12 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import {
   LayoutDashboard, ArrowLeftRight, Upload, FileBarChart2,
-  Calculator, Bell, LogOut, Zap, ChevronRight, Sparkles
+  Calculator, Bell, LogOut, Zap, ChevronRight, Sparkles, Menu, X
 } from "lucide-react";
-import clsx from "clsx";
 
 const nav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -21,59 +21,153 @@ const nav = [
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const [open, setOpen] = useState(false);
 
   return (
-    <aside className="fixed inset-y-0 left-0 w-64 bg-slate-900 flex flex-col z-30">
-      <div className="flex items-center gap-2.5 px-6 py-5 border-b border-slate-700">
-        <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
-          <Zap className="w-4 h-4 text-white" />
-        </div>
-        <div>
-          <p className="text-white font-bold text-sm leading-none">AutoGST Pro</p>
-          <p className="text-slate-400 text-xs mt-0.5">SmartTax AI</p>
+    <>
+      {/* Desktop sidebar */}
+      <div className="hidden lg:block">
+        <aside style={{
+          position: 'fixed', top: 0, left: 0,
+          width: '256px', height: '100vh',
+          backgroundColor: '#0f172a',
+          display: 'flex', flexDirection: 'column',
+          zIndex: 30,
+        }}>
+          <SidebarInner pathname={pathname} user={user} logout={logout} onClose={() => {}} showClose={false} />
+        </aside>
+      </div>
+
+      {/* Mobile top bar */}
+      <div className="lg:hidden" style={{
+        position: 'fixed', top: 0, left: 0, right: 0,
+        height:'56px',
+        backgroundColor: '#0f172a',
+        borderBottom: '1px solid #334155',
+        display: 'flex', alignItems: 'center', gap: '12px',
+        padding: '0 16px', zIndex: 40,
+      }}>
+        <button onClick={() => setOpen(true)} style={{ color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer' }}>
+          <Menu className="w-5 h-5" />
+        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{
+            width: '24px', height: '24px', backgroundColor: '#6366f1',
+            borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}>
+            <Zap className="w-3 h-3 text-white" />
+          </div>
+          <p style={{ color: 'white', fontWeight: 'bold', fontSize: '14px', margin: 0 }}>AutoGST Pro</p>
         </div>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
+      {/* Mobile drawer */}
+      {open && (
+        <>
+          <div onClick={() => setOpen(false)} style={{
+            position: 'fixed', inset: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            zIndex: 998,
+          }} />
+          <aside style={{
+            position: 'fixed', top: 0, left: 0,
+            width: '256px', height: '100vh',
+            backgroundColor: '#0f172a',
+            display: 'flex', flexDirection: 'column',
+            zIndex: 999,
+          }}>
+            <SidebarInner pathname={pathname} user={user} logout={logout} onClose={() => setOpen(false)} showClose={true} />
+          </aside>
+        </>
+      )}
+    </>
+  );
+}
+
+function SidebarInner({ pathname, user, logout, onClose, showClose }: {
+  pathname: string;
+  user: any;
+  logout: () => void;
+  onClose: () => void;
+  showClose: boolean;
+}) {
+  return (
+    <>
+      {/* Logo */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '20px 24px', borderBottom: '1px solid #334155'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            width: '32px', height: '32px', backgroundColor: '#6366f1',
+            borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}>
+            <Zap className="w-4 h-4 text-white" />
+          </div>
+          <div>
+            <p style={{ color: 'white', fontWeight: 'bold', fontSize: '14px', margin: 0, lineHeight: '1' }}>AutoGST Pro</p>
+            <p style={{ color: '#94a3b8', fontSize: '12px', margin: '2px 0 0 0' }}>SmartTax AI</p>
+          </div>
+        </div>
+        {showClose && (
+          <button onClick={onClose} style={{ color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer' }}>
+            <X className="w-5 h-5" />
+          </button>
+        )}
+      </div>
+
+      {/* Nav */}
+      <nav style={{ flex: 1, padding: '16px 12px', overflowY: 'auto' }}>
         {nav.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
-            <Link
-              key={href}
-              href={href}
-              className={clsx(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group",
-                active
-                  ? "bg-indigo-600 text-white"
-                  : "text-slate-400 hover:bg-slate-800 hover:text-white"
-              )}
-            >
-              <Icon className="w-4 h-4 flex-shrink-0" />
-              <span className="flex-1">{label}</span>
-              {active && <ChevronRight className="w-3 h-3 opacity-60" />}
+            <Link key={href} href={href} onClick={onClose} style={{
+              display: 'flex', alignItems: 'center', gap: '12px',
+              padding: '10px 12px', borderRadius: '8px',
+              marginBottom: '2px', textDecoration: 'none',
+              fontSize: '14px', fontWeight: 500,
+              backgroundColor: active ? '#4f46e5' : 'transparent',
+              color: active ? 'white' : '#94a3b8',
+            }}>
+              <Icon style={{ width: '16px', height: '16px', flexShrink: 0 }} />
+              <span style={{ flex: 1 }}>{label}</span>
+              {active && <ChevronRight style={{ width: '12px', height: '12px', opacity: 0.6 }} />}
             </Link>
           );
         })}
       </nav>
 
-      <div className="px-3 py-4 border-t border-slate-700">
-        <div className="flex items-center gap-3 px-3 py-2 rounded-lg mb-1">
-          <div className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+      {/* User + Logout */}
+      <div style={{ padding: '16px 12px', borderTop: '1px solid #334155' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '8px 12px', marginBottom: '4px' }}>
+          <div style={{
+            width: '32px', height: '32px', backgroundColor: '#6366f1',
+            borderRadius: '50%', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', color: 'white', fontSize: '12px',
+            fontWeight: 'bold', flexShrink: 0
+          }}>
             {user?.full_name?.[0]?.toUpperCase() ?? "U"}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-white text-xs font-medium truncate">{user?.full_name}</p>
-            <p className="text-slate-400 text-xs truncate">{user?.email}</p>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ color: 'white', fontSize: '12px', fontWeight: 500, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {user?.full_name}
+            </p>
+            <p style={{ color: '#94a3b8', fontSize: '12px', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {user?.email}
+            </p>
           </div>
         </div>
-        <button
-          onClick={logout}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-red-400 transition-all text-sm"
-        >
-          <LogOut className="w-4 h-4" />
+        <button onClick={logout} style={{
+          width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
+          padding: '8px 12px', borderRadius: '8px', border: 'none',
+          backgroundColor: 'transparent', color: '#94a3b8',
+          cursor: 'pointer', fontSize: '14px',
+        }}>
+          <LogOut style={{ width: '16px', height: '16px' }} />
           <span>Logout</span>
         </button>
       </div>
-    </aside>
+    </>
   );
 }

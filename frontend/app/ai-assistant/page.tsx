@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { api } from "@/lib/api";
 import toast from "react-hot-toast";
-import { Send, Bot, User, Sparkles, RefreshCw, MessageSquare } from "lucide-react";
+import { Send, Bot, User, Sparkles, RefreshCw } from "lucide-react";
 import clsx from "clsx";
 
 interface Message {
@@ -11,35 +11,22 @@ interface Message {
   timestamp: Date;
 }
 
-const SUGGESTIONS = [
-  "What are the GST rates for software services?",
-  "Which tax regime is better for ₹12 lakh salary?",
-  "How do I claim input tax credit (ITC)?",
-  "What is the due date for GSTR-1 filing?",
-  "Explain reverse charge mechanism",
-  "What deductions can I claim under 80C?",
-];
-
 function MessageBubble({ msg }: { msg: Message }) {
   const isUser = msg.role === "user";
   return (
     <div className={clsx("flex gap-3", isUser ? "flex-row-reverse" : "flex-row")}>
-      {/* Avatar */}
       <div className={clsx(
         "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1",
         isUser ? "bg-indigo-600" : "bg-slate-700"
       )}>
         {isUser ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
       </div>
-
-      {/* Bubble */}
       <div className={clsx(
-        "max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed",
+        "max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed",
         isUser
           ? "bg-indigo-600 text-white rounded-tr-sm"
           : "bg-white border border-slate-200 text-slate-800 rounded-tl-sm shadow-sm"
       )}>
-        {/* Render with line breaks and basic markdown-like bold */}
         {msg.content.split("\n").map((line, i) => {
           const formatted = line
             .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
@@ -52,7 +39,7 @@ function MessageBubble({ msg }: { msg: Message }) {
             />
           );
         })}
-        <p className={clsx("text-xs mt-1.5 opacity-60")}>
+        <p className="text-xs mt-1.5 opacity-60">
           {msg.timestamp.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
         </p>
       </div>
@@ -88,11 +75,7 @@ export default function AIAssistantPage() {
 
     try {
       const history = messages.map(m => ({ role: m.role, content: m.content }));
-      const res = await api.post("/ai/chat", {
-        message: messageText,
-        history: history,
-      });
-
+      const res = await api.post("/ai/chat", { message: messageText, history });
       const assistantMsg: Message = {
         role: "assistant",
         content: res.data.reply,
@@ -129,109 +112,78 @@ export default function AIAssistantPage() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-6rem)] max-w-4xl">
+    <div className="flex flex-col" style={{ height: 'calc(100vh - 5rem)' }}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-indigo-500" />
+          <h1 className="text-xl lg:text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-indigo-500" />
             AI Tax Assistant
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-slate-500 text-xs lg:text-sm mt-1">
             Powered by Google Gemini · Ask anything about GST, income tax, and compliance
           </p>
         </div>
         <button onClick={clearChat} className="btn-secondary flex items-center gap-2 text-sm">
-          <RefreshCw className="w-3.5 h-3.5" /> Clear Chat
+          <RefreshCw className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Clear Chat</span>
         </button>
       </div>
 
-      <div className="flex gap-4 flex-1 min-h-0">
-        {/* Chat Window */}
-        <div className="flex-1 flex flex-col card overflow-hidden">
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((msg, i) => (
-              <MessageBubble key={i} msg={msg} />
-            ))}
-
-            {/* Typing indicator */}
-            {loading && (
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-4 h-4 text-white" />
-                </div>
-                <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
-                  <div className="flex gap-1 items-center h-5">
-                    {[0, 1, 2].map(i => (
-                      <div
-                        key={i}
-                        className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"
-                        style={{ animationDelay: `${i * 0.15}s` }}
-                      />
-                    ))}
-                  </div>
+      {/* Chat Window — full width, fills remaining height */}
+      <div className="flex-1 flex flex-col card overflow-hidden min-h-0">
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.map((msg, i) => (
+            <MessageBubble key={i} msg={msg} />
+          ))}
+          {loading && (
+            <div className="flex gap-3">
+              <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0">
+                <Bot className="w-4 h-4 text-white" />
+              </div>
+              <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+                <div className="flex gap-1 items-center h-5">
+                  {[0, 1, 2].map(i => (
+                    <div
+                      key={i}
+                      className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"
+                      style={{ animationDelay: `${i * 0.15}s` }}
+                    />
+                  ))}
                 </div>
               </div>
-            )}
-            <div ref={bottomRef} />
-          </div>
-
-          {/* Input */}
-          <div className="border-t border-slate-100 p-3">
-            <div className="flex gap-2 items-end">
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask about GST rates, ITC, tax filing, deductions… (Enter to send)"
-                rows={2}
-                className="flex-1 resize-none border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                disabled={loading}
-              />
-              <button
-                onClick={() => sendMessage()}
-                disabled={loading || !input.trim()}
-                className="btn-primary p-2.5 rounded-xl disabled:opacity-40"
-              >
-                <Send className="w-4 h-4" />
-              </button>
             </div>
-            <p className="text-xs text-slate-400 mt-1.5 px-1">
-              Shift+Enter for new line · Enter to send
-            </p>
-          </div>
+          )}
+          <div ref={bottomRef} />
         </div>
 
-        {/* Suggestions sidebar */}
-        <div className="w-56 flex-shrink-0 space-y-3">
-          <div className="card p-4">
-            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-              <MessageSquare className="w-3.5 h-3.5" /> Quick Questions
-            </h3>
-            <div className="space-y-1.5">
-              {SUGGESTIONS.map((q, i) => (
-                <button
-                  key={i}
-                  onClick={() => sendMessage(q)}
-                  disabled={loading}
-                  className="w-full text-left text-xs text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 p-2 rounded-lg transition-colors disabled:opacity-40"
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
+        {/* Input */}
+        <div className="border-t border-slate-100 p-3">
+          <div className="flex gap-2 items-end">
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask about GST rates, ITC, tax filing, deductions…"
+              rows={2}
+              className="flex-1 resize-none border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              disabled={loading}
+            />
+            <button
+              onClick={() => sendMessage()}
+              disabled={loading || !input.trim()}
+              className="btn-primary p-2.5 rounded-xl disabled:opacity-40"
+            >
+              <Send className="w-4 h-4" />
+            </button>
           </div>
-
-          <div className="card p-4 bg-amber-50 border-amber-200">
-            <p className="text-xs text-amber-700 font-medium">⚠️ Disclaimer</p>
-            <p className="text-xs text-amber-600 mt-1">
-              AI responses are for guidance only. Consult a CA for legal tax advice.
-            </p>
-          </div>
+          <p className="text-xs text-slate-400 mt-1.5 px-1">
+            Shift+Enter for new line · Enter to send
+          </p>
         </div>
       </div>
     </div>
   );
-}
+} 

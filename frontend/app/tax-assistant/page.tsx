@@ -18,7 +18,17 @@ export default function TaxAssistantPage() {
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
-      const r = await taxApi.calculate({ ...data, gross_income: Number(data.gross_income), salary_income: Number(data.salary_income || 0), business_income: Number(data.business_income || 0), other_income: Number(data.other_income || 0), section_80c: Number(data.section_80c || 0), section_80d: Number(data.section_80d || 0), section_80g: Number(data.section_80g || 0), hra_exemption: Number(data.hra_exemption || 0) }, true);
+      const r = await taxApi.calculate({
+        ...data,
+        gross_income: Number(data.gross_income),
+        salary_income: Number(data.salary_income || 0),
+        business_income: Number(data.business_income || 0),
+        other_income: Number(data.other_income || 0),
+        section_80c: Number(data.section_80c || 0),
+        section_80d: Number(data.section_80d || 0),
+        section_80g: Number(data.section_80g || 0),
+        hra_exemption: Number(data.hra_exemption || 0)
+      }, true);
       setResult(r.data);
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Calculation failed");
@@ -28,18 +38,22 @@ export default function TaxAssistantPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Tax Assistant</h1>
-        <p className="text-slate-500 text-sm mt-1">Calculate your Indian income tax liability for FY 2024-25 (Old vs New Regime)</p>
+        <h1 className="text-xl lg:text-2xl font-bold text-slate-900">Tax Assistant</h1>
+        <p className="text-slate-500 text-xs lg:text-sm mt-1">
+          Calculate your Indian income tax liability for FY 2024-25 (Old vs New Regime)
+        </p>
       </div>
 
-      <div className="grid grid-cols-5 gap-6">
-        {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="col-span-2 space-y-4">
-          <div className="card p-5 space-y-4">
-            <h3 className="font-semibold text-slate-800">Income Details</h3>
+      {/* Layout — stacked on mobile, side by side on lg */}
+      <div className="flex flex-col lg:grid lg:grid-cols-5 gap-4 lg:gap-6">
 
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="lg:col-span-2 space-y-4">
+          <div className="card p-4 lg:p-5 space-y-4">
+            <h3 className="font-semibold text-slate-800">Income Details</h3>
             <div>
               <label className="label">Tax Regime *</label>
               <div className="flex gap-2">
@@ -51,7 +65,6 @@ export default function TaxAssistantPage() {
                 ))}
               </div>
             </div>
-
             <div>
               <label className="label">Gross Annual Income (₹) *</label>
               <input {...register("gross_income", { required: true, min: 0 })} type="number" className="input" placeholder="1200000" />
@@ -71,7 +84,7 @@ export default function TaxAssistantPage() {
           </div>
 
           {regime === "old" && (
-            <div className="card p-5 space-y-4">
+            <div className="card p-4 lg:p-5 space-y-4">
               <h3 className="font-semibold text-slate-800">Deductions (Old Regime)</h3>
               <div>
                 <label className="label">Section 80C (max ₹1.5L)</label>
@@ -99,17 +112,17 @@ export default function TaxAssistantPage() {
         </form>
 
         {/* Results */}
-        <div className="col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4">
           {result ? (
             <>
-              {/* Summary Cards */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="card p-5 bg-indigo-50 border-indigo-200">
+              {/* Summary Cards — 1 col mobile, 2 col sm+ */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="card p-4 lg:p-5 bg-indigo-50 border-indigo-200">
                   <p className="text-xs font-semibold text-indigo-500 uppercase">Total Tax Liability</p>
-                  <p className="text-3xl font-bold text-indigo-700 mt-1">{fmt(result.total_tax_liability)}</p>
+                  <p className="text-2xl lg:text-3xl font-bold text-indigo-700 mt-1">{fmt(result.total_tax_liability)}</p>
                   <p className="text-xs text-indigo-500 mt-1">Effective Rate: {result.effective_tax_rate}%</p>
                 </div>
-                <div className="card p-5">
+                <div className="card p-4 lg:p-5">
                   <p className="text-xs font-semibold text-slate-500 uppercase">Taxable Income</p>
                   <p className="text-2xl font-bold text-slate-800 mt-1">{fmt(result.taxable_income)}</p>
                   <p className="text-xs text-slate-400 mt-1">After deductions: {fmt(result.total_deductions)}</p>
@@ -117,7 +130,7 @@ export default function TaxAssistantPage() {
               </div>
 
               {/* Breakdown */}
-              <div className="card p-5 space-y-3">
+              <div className="card p-4 lg:p-5 space-y-3">
                 <h3 className="font-semibold text-slate-800">Tax Breakdown</h3>
                 {[
                   { label: "Income Tax", value: result.income_tax },
@@ -137,12 +150,12 @@ export default function TaxAssistantPage() {
 
               {/* Slab Breakdown */}
               {result.slab_breakdown?.length > 0 && (
-                <div className="card p-5">
+                <div className="card p-4 lg:p-5">
                   <h3 className="font-semibold text-slate-800 mb-3">Slab-wise Breakdown</h3>
-                  <div className="space-y-2">
+                  <div className="space-y-2 overflow-x-auto">
                     {result.slab_breakdown.map((s: any, i: number) => (
-                      <div key={i} className="flex justify-between text-xs py-1.5 border-b border-slate-50">
-                        <span className="text-slate-500">{s.slab}</span>
+                      <div key={i} className="flex justify-between text-xs py-1.5 border-b border-slate-50 gap-2">
+                        <span className="text-slate-500 flex-1">{s.slab}</span>
                         <span className="text-slate-600">{s.rate}% on {fmt(s.taxable_in_slab)}</span>
                         <span className="font-semibold text-slate-800">{fmt(s.tax_in_slab)}</span>
                       </div>
@@ -153,9 +166,9 @@ export default function TaxAssistantPage() {
 
               {/* Regime Comparison */}
               {result.comparison && (
-                <div className={`card p-5 ${result.comparison.recommended === "current" ? "bg-green-50 border-green-200" : "bg-amber-50 border-amber-200"}`}>
+                <div className={`card p-4 lg:p-5 ${result.comparison.recommended === "current" ? "bg-green-50 border-green-200" : "bg-amber-50 border-amber-200"}`}>
                   <div className="flex items-start gap-3">
-                    <Award className={`w-5 h-5 mt-0.5 ${result.comparison.recommended === "current" ? "text-green-600" : "text-amber-600"}`} />
+                    <Award className={`w-5 h-5 mt-0.5 flex-shrink-0 ${result.comparison.recommended === "current" ? "text-green-600" : "text-amber-600"}`} />
                     <div>
                       <p className="font-semibold text-slate-800">
                         {result.comparison.recommended === "current"
@@ -173,12 +186,14 @@ export default function TaxAssistantPage() {
               )}
             </>
           ) : (
-            <div className="card p-16 flex flex-col items-center justify-center text-center">
+            <div className="card p-10 lg:p-16 flex flex-col items-center justify-center text-center">
               <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-4">
                 <Calculator className="w-8 h-8 text-indigo-500" />
               </div>
               <h3 className="font-semibold text-slate-700">Enter Income Details</h3>
-              <p className="text-slate-400 text-sm mt-1 max-w-xs">Fill in your income details and click Calculate to see your tax liability with a regime comparison.</p>
+              <p className="text-slate-400 text-sm mt-1 max-w-xs">
+                Fill in your income details and click Calculate to see your tax liability with a regime comparison.
+              </p>
             </div>
           )}
         </div>
