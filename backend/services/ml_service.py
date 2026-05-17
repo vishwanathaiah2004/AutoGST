@@ -1,4 +1,4 @@
-import logging
+﻿import logging
 import pickle
 import os
 import numpy as np
@@ -186,4 +186,5 @@ def batch_classify_transactions(transactions: List[Transaction]) -> List[Transac
             txn.ml_confidence = float(proba[best_idx])
         except Exception as e:
             logger.warning("Batch classify failed for txn %d: %s", txn.id, str(e))
+
     return transactions
