@@ -13,7 +13,9 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 ml-64 p-6 min-h-screen bg-slate-50">{children}</main>
+      <main className="flex-1 lg:ml-64 min-h-screen bg-slate-50" style={{padding: "24px", paddingTop: "56px"}}>
+        {children}
+      </main>
     </div>
   );
 }
