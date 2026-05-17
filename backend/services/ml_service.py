@@ -17,7 +17,7 @@ MODEL_DIR = "ml/models"
 CLASSIFIER_PATH = os.path.join(MODEL_DIR, "expense_classifier.pkl")
 ANOMALY_MODEL_PATH = os.path.join(MODEL_DIR, "anomaly_detector.pkl")
 
-os.makedirs(MODEL_DIR, exist_ok=True)
+os.makedirs(MODEL_DIR, exist_ok=True) 
 
 # ─── Training Data ───────────────────────────────────────────────────────────
 
@@ -187,3 +187,11 @@ def batch_classify_transactions(transactions: List[Transaction]) -> List[Transac
         except Exception as e:
             logger.warning("Batch classify failed for txn %d: %s", txn.id, str(e))
     return transactions
+
+
+
+
+
+
+
+

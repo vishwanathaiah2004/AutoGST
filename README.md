@@ -4,7 +4,7 @@ A production-ready full-stack GST management and tax calculation platform for In
 
 ## Tech Stack
 - **Frontend**: Next.js 15 (App Router) + Tailwind CSS + TypeScript
-- **Backend**: FastAPI (Python 3.11+)
+- **Backend**: FastAPI (Python 3.11+)   # py -3.11 -m venv venv  
 - **Database**: PostgreSQL
 - **Auth**: JWT (python-jose + bcrypt)
 - **OCR**: Tesseract + pytesseract
@@ -53,6 +53,7 @@ sudo apt-get update && sudo apt-get install tesseract-ocr -y
 ```
 
 **macOS:**
+
 ```bash
 brew install tesseract
 ```
