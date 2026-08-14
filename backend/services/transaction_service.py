@@ -51,8 +51,8 @@ def create_transaction(db: Session, user: User, data: TransactionCreate) -> Tran
         # ML: expense classification
         try:
             ml_cat, confidence = classify_expense(data.description, float(data.amount))
-            txn.ml_category = ml_cat
-            txn.ml_confidence = confidence
+            txn.ml_category = str(ml_cat) if ml_cat is not None else None
+            txn.ml_confidence = float(confidence) if confidence is not None else None
         except Exception as ml_err:
             logger.warning("ML classification failed for transaction: %s", str(ml_err))
 
@@ -61,8 +61,8 @@ def create_transaction(db: Session, user: User, data: TransactionCreate) -> Tran
             is_anomaly, anomaly_score = detect_anomaly(
                 db, user.id, float(data.amount), data.transaction_type
             )
-            txn.is_anomaly = is_anomaly
-            txn.anomaly_score = anomaly_score
+            txn.is_anomaly = bool(is_anomaly)
+            txn.anomaly_score = float(anomaly_score) if anomaly_score is not None else None
 
             if is_anomaly:
                 create_alert(

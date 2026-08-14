@@ -114,7 +114,7 @@ def classify_expense(description: str, amount: float) -> Tuple[str, float]:
         clf = get_classifier()
         proba = clf.predict_proba([description])[0]
         best_idx = np.argmax(proba)
-        category = clf.classes_[best_idx]
+        category = str(clf.classes_[best_idx])
         confidence = float(proba[best_idx])
         logger.debug("Classified '%s' → '%s' (conf=%.2f)", description, category, confidence)
         return category, confidence
@@ -158,15 +158,15 @@ def detect_anomaly(
         score = model.decision_function([[amount]])[0]
         prediction = model.predict([[amount]])[0]  # -1 = anomaly, 1 = normal
 
-        is_anomaly = prediction == -1
+        is_anomaly = bool(prediction == -1)
         # Normalize score to 0-1 range (higher = more anomalous)
-        anomaly_score = max(0.0, min(1.0, (-score + 0.5)))
+        anomaly_score = float(max(0.0, min(1.0, (-score + 0.5))))
 
         logger.debug(
             "Anomaly detection: amount=%.2f is_anomaly=%s score=%.3f",
             amount, is_anomaly, anomaly_score
         )
-        return is_anomaly, round(anomaly_score, 3)
+        return is_anomaly, float(round(anomaly_score, 3))
 
     except Exception as e:
         logger.error("Anomaly detection error: %s", str(e))
@@ -182,16 +182,8 @@ def batch_classify_transactions(transactions: List[Transaction]) -> List[Transac
         try:
             proba = clf.predict_proba([txn.description])[0]
             best_idx = np.argmax(proba)
-            txn.ml_category = clf.classes_[best_idx]
+            txn.ml_category = str(clf.classes_[best_idx])
             txn.ml_confidence = float(proba[best_idx])
         except Exception as e:
             logger.warning("Batch classify failed for txn %d: %s", txn.id, str(e))
     return transactions
-
-
-
-
-
-
-
-

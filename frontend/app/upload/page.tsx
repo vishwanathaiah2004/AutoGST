@@ -97,19 +97,22 @@ export default function UploadPage() {
       {/* Result */}
       {result && (
         <div className="card p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+          {/* Header — stacks on mobile */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <h3 className="font-semibold text-slate-900 flex items-center gap-2 flex-wrap break-all">
               {result.ocr_status === "success" ? (
-                <CheckCircle2 className="w-5 h-5 text-green-500" />
+                <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
               ) : (
-                <XCircle className="w-5 h-5 text-red-500" />
+                <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
               )}
               OCR Result: {result.filename}
             </h3>
-            <div className="flex gap-2 text-xs">
-              <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded-full">Method: {result.parsing_method || "—"}</span>
+            <div className="flex gap-2 text-xs flex-wrap">
+              <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded-full whitespace-nowrap">
+                Method: {result.parsing_method || "—"}
+              </span>
               {result.confidence && (
-                <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full whitespace-nowrap">
                   Confidence: {(result.confidence * 100).toFixed(1)}%
                 </span>
               )}
@@ -124,7 +127,7 @@ export default function UploadPage() {
                 {Object.entries(result.parsed_data).map(([k, v]) => (
                   <div key={k} className="bg-slate-50 rounded-lg px-3 py-2">
                     <p className="text-xs text-slate-400 uppercase tracking-wide">{k.replace(/_/g, " ")}</p>
-                    <p className="text-sm font-medium text-slate-800 mt-0.5">{String(v)}</p>
+                    <p className="text-sm font-medium text-slate-800 mt-0.5 break-all">{String(v)}</p>
                   </div>
                 ))}
               </div>

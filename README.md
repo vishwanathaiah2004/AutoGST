@@ -311,3 +311,7 @@ cd backend && python utils/seed.py
 ```
 
 View API docs (Swagger UI): http://localhost:8000/docs
+
+
+// py -3.11 -m venv venv 
+//.\venv\Scripts\activate  
