@@ -1,6 +1,29 @@
-# AutoGST Pro + SmartTax AI....
 
-A production-ready full-stack GST management and tax calculation platform for Indian businesses.
+# AutoGST Pro — Intelligent GST & Tax Management Platform
+
+A production-grade full-stack SaaS platform built for India's 14 million 
+registered MSME businesses. Automates GST compliance through an 
+end-to-end document intelligence pipeline:
+
+**Raw PDF invoice → OCR extraction → ML classification → 
+structured tax report**
+
+No manual data entry. Fully automated.
+
+## Pipeline Architecture
+
+```mermaid
+graph TD
+    A[📄 Raw Input<br/>PDF · JPG · PNG · Scanned Photo] --> B[OpenCV<br/>Image Preprocessing]
+    B --> C[Tesseract OCR<br/>Text Extraction]
+    C --> D{Parse Quality?}
+    D -->|Good| E[Regex Parser]
+    D -->|Poor/Unclear| F[Gemini AI<br/>Fallback Parser]
+    E --> G[scikit-learn ML<br/>Expense Classifier]
+    F --> G
+    G --> H[GST Computation Engine<br/>CGST · SGST · IGST]
+    H --> I[📊 Automated Report<br/>PDF · Excel · Dashboard]
+```
 
 ## Tech Stack
 - **Frontend**: Next.js 15 (App Router) + Tailwind CSS + TypeScript
